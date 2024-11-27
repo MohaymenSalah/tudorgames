@@ -3,149 +3,152 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لعبة ذاكرة - Tudor Optics</title>
+    <title>لعبة فزورة - Tudor Optics</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Arial', sans-serif;
             direction: rtl;
             text-align: center;
-            background-color: #f2f2f2;
+            background-color: #f8f8f8;
+            margin: 0;
+            padding: 0;
         }
 
         h1 {
             font-size: 36px;
             color: #333;
+            margin-top: 50px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
         }
 
-        .memory-card {
-            width: 100px;
-            height: 100px;
-            margin: 10px;
-            background-color: #ccc;
+        p {
+            font-size: 20px;
+            color: #555;
+            margin-top: 10px;
+        }
+
+        .container {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 30px;
+        }
+
+        .letter {
             display: inline-block;
+            width: 60px;
+            height: 60px;
+            margin: 10px;
+            background-color: #f2f2f2;
+            line-height: 60px;
+            text-align: center;
+            font-size: 28px;
+            font-weight: bold;
+            color: #333;
             cursor: pointer;
-            position: relative;
-            transition: transform 0.3s;
+            border-radius: 8px;
+            border: 2px solid #ccc;
+            transition: background-color 0.3s, transform 0.3s;
         }
 
-        .memory-card img {
-            width: 100%;
-            height: 100%;
-            display: none;
+        .letter:hover {
+            background-color: #e0e0e0;
+            transform: scale(1.1);
         }
 
-        .memory-card.flipped img {
-            display: block;
+        .success {
+            color: #4CAF50;
+            font-size: 24px;
+            margin-top: 20px;
+            font-weight: bold;
+        }
+
+        .failure {
+            color: red;
+            font-size: 24px;
+            margin-top: 20px;
+            font-weight: bold;
         }
 
         #message {
-            font-size: 24px;
-            margin-top: 20px;
-            color: #333;
+            margin-top: 30px;
         }
 
-        #resetButton {
-            padding: 10px 20px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            cursor: pointer;
+        #discount {
+            font-size: 22px;
+            color: #ff6347;
+            margin-top: 20px;
+            font-weight: bold;
+        }
+
+        #congratulations {
+            font-size: 22px;
+            color: #4CAF50;
+            margin-top: 20px;
+            font-weight: bold;
+        }
+
+        #footer {
+            margin-top: 50px;
             font-size: 18px;
-            margin-top: 20px;
-            border-radius: 5px;
+            color: #777;
         }
 
-        #resetButton:hover {
-            background-color: #45a049;
-        }
     </style>
 </head>
 <body>
+    <h1>لعبة الفزورة - Tudor Optics</h1>
+    <p>حاول ترتيب الحروف لتكوين الكلمة الصحيحة: "Tudor"</p>
+    
+    <div id="letters" class="container">
+        <div class="letter" onclick="swap(this)">T</div>
+        <div class="letter" onclick="swap(this)">u</div>
+        <div class="letter" onclick="swap(this)">d</div>
+        <div class="letter" onclick="swap(this)">o</div>
+        <div class="letter" onclick="swap(this)">r</div>
+    </div>
 
-    <h1>Tudor Optics - لعبة الذاكرة</h1>
-    <p>قم بمطابقة الصور للحصول على الخصم!</p>
-    
-    <div id="game-board"></div>
     <div id="message"></div>
-    
-    <button id="resetButton" onclick="startGame()">إعادة اللعبة</button>
+    <div id="discount"></div>
+    <div id="congratulations"></div>
+
+    <div id="footer">© 2024 Tudor Optics | جميع الحقوق محفوظة</div>
 
     <script>
-        const cards = [
-            { name: " نظارة 1", image: "https://via.placeholder.com/100" },  // https://ibb.co/3TxBsVb
-            { name: " نظارة 2", image: "https://via.placeholder.com/100" },  // https://ibb.co/7CLfxzD
-            { name: " نظارة 3", image: "https://via.placeholder.com/100" },  // https://ibb.co/6g01DQr
-            { name: " نظارة 4", image: "https://via.placeholder.com/100" },  // https://ibb.co/h7ZH4hy
-            { name: " نظارة 1", image: "https://via.placeholder.com/100" },
-            { name: " نظارة 2", image: "https://via.placeholder.com/100" },
-            { name: " نظارة 3", image: "https://via.placeholder.com/100" },
-            { name: " نظارة 4", image: "https://via.placeholder.com/100" }
-        ];
+        let correctWord = "Tudor";
+        let letters = Array.from(document.querySelectorAll('.letter'));
 
-        let flippedCards = [];
-        let matchedCards = [];
-        let messageElement = document.getElementById('message');
-        let gameBoard = document.getElementById('game-board');
+        function swap(element) {
+            let index = letters.indexOf(element);
+            let currentText = element.innerText;
+            let nextIndex = (index + 1) % letters.length;
+            let nextText = letters[nextIndex].innerText;
+            
+            // Swap letters
+            element.innerText = nextText;
+            letters[nextIndex].innerText = currentText;
 
-        // بدء اللعبة
-        function startGame() {
-            shuffledCards = shuffleArray([...cards]);
-            flippedCards = [];
-            matchedCards = [];
-            gameBoard.innerHTML = '';
-            messageElement.innerHTML = '';
-            shuffledCards.forEach(card => {
-                const cardElement = document.createElement('div');
-                cardElement.classList.add('memory-card');
-                cardElement.setAttribute('data-name', card.name);
-                cardElement.addEventListener('click', flipCard);
-                const cardImage = document.createElement('img');
-                cardImage.src = card.image;
-                cardElement.appendChild(cardImage);
-                gameBoard.appendChild(cardElement);
-            });
+            checkAnswer();
         }
 
-        // خلط البطاقات عشوائيًا
-        function shuffleArray(array) {
-            for (let i = array.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [array[i], array[j]] = [array[j], array[i]];
-            }
-            return array;
-        }
-
-        // قلب البطاقة
-        function flipCard() {
-            if (flippedCards.length < 2 && !this.classList.contains('flipped') && !matchedCards.includes(this)) {
-                this.classList.add('flipped');
-                flippedCards.push(this);
-                if (flippedCards.length === 2) {
-                    checkMatch();
-                }
-            }
-        }
-
-        // التحقق من المطابقة
-        function checkMatch() {
-            const [card1, card2] = flippedCards;
-            if (card1.getAttribute('data-name') === card2.getAttribute('data-name')) {
-                matchedCards.push(card1, card2);
-                flippedCards = [];
-                if (matchedCards.length === cards.length) {
-                    messageElement.innerHTML = 'تهانينا! لقد فزت وحصلت على خصم 20%!';
-                }
+        function checkAnswer() {
+            let currentWord = letters.map(letter => letter.innerText).join('');
+            if (currentWord === correctWord) {
+                let discount = generateDiscount();
+                document.getElementById('message').innerHTML = '<p class="success">مبروك! لقد قمت بترتيب الكلمة بشكل صحيح.</p>';
+                document.getElementById('discount').innerHTML = نسبة خصمك هي: ${discount}%;
+                document.getElementById('congratulations').innerHTML = تهانينا! لقد فزت بالخصم. استمتع بالتسوق في متجرنا!;
             } else {
-                setTimeout(() => {
-                    card1.classList.remove('flipped');
-                    card2.classList.remove('flipped');
-                    flippedCards = [];
-                }, 1000);
+                document.getElementById('message').innerHTML = '';
+                document.getElementById('discount').innerHTML = '';
+                document.getElementById('congratulations').innerHTML = '';
             }
         }
 
-        startGame();
+        function generateDiscount() {
+            // توليد خصم عشوائي بين 10% و 40%
+            return Math.floor(Math.random() * (40 - 10 + 1)) + 10;
+        }
     </script>
-
 </body>
 </html>
